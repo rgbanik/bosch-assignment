@@ -1,2 +1,4 @@
 # bosch-assignment
-This repo contains my submission for the Applied CV coding assignment which Bosch asked me to work on. Hope I pass and get an interview!
+
+Additional Notes (Not that important):
+1. I personally use [uv](https://docs.astral.sh/uv/getting-started/installation/) as the package manager for almost all of my projects, but I decided against using it in this assignment to keep things simple. 

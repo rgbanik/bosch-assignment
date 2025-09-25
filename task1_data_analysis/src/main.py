@@ -1,45 +1,46 @@
-import os
 import streamlit as st
-from pathlib import Path
-import ijson
+from analyzer import DatasetAnalyzer
+from visualizer import Visualizer
 
-def run_analysis():
-    dataset_root = Path(os.environ.get("DATASET_PATH", "/data"))
-    labels_path = dataset_root / "bdd100k_labels_release" / "bdd100k" / "labels"
-    val_labels = labels_path / "bdd100k_labels_images_val.json"
-    train_labels = labels_path / "bdd100k_labels_images_train.json"
+def main():
+    """
+    Main method which calls the analyzer and visualizer classes
+    and writes to streamlit
+    """
 
+    st.write("Hello! Thank you for checking out my assignment submission!")
+    st.write("Please wait while the analysis is being generated.")
+    st.write("The animated icon to the top right shows that the system is processing the data.")
+    st.write("Plots and data will appear here sequentially as they are generated. :D")
+
+    # Initialize dataset analyzer
+    dataset_analyzer = DatasetAnalyzer()
+    dataset_analyzer.analyze_labels()
+
+    st.write("Although these statistics are useful, they are hard to interpret in tabular form.")
+    st.write("Some anomalous statistics can be seen for each class, like very small or very large widths, heights, and areas")
+    st.write("However, these might just be outliers and only a few in number. A boxplot could help reveal this.")
+    st.write("Let's generate some plots to visualize the data!")
+
+    visualizer = Visualizer()
+
+    visualizer.render_barplots_general()
+    visualizer.render_barplots_comparison()
     
-    val_labels_dict = {}
-    train_labels_dict = {}
+    visualizer.generate_boxplot()
+    st.write("The boxplots reveal that the train set has several large outliers that cover over 40 percent of the image.")
+    st.write("There are two images in the train set with traffic lights that cover almost the entire image.")
+    st.write("There are three images with buses and four images with trucks that cover over 70 percent of the images in the train set.")
+    st.write("The validation set outliers are much smaller, and there are only about 5 truck images that cover more than 50% of the image.")
+    visualizer.generate_heatmaps()
+    st.write("We see from these heatmaps that the distribution of cars, traffic lights, and traffic signs are somewhat uniform")
+    st.write("and the distribution of bike, motor, and rider are rather haphazard in both sets, despite their small counts.")
+    st.write("The distribution of the person class, which has two modes, is an interesting way to learn that the dataset features several scenes where pedestrians are on either side of the road")
 
-    with val_labels.open("r", encoding="utf-8") as f:
-        for obj in ijson.items(f, "item"):
-            for label in obj["labels"]:
-                name = label["category"]
-                if name not in ["lane", "drivable area"]:
-                    if val_labels_dict.get(name) is None:
-                        st.write(name)
-                        val_labels_dict[name] = 1
-                    else:
-                        val_labels_dict[name] += 1
+    st.write("That brings us to the end of the analysis.")
+    st.write("While I would have liked to do a lot more in this task and visualize individual examples, I have unfortunately run out of time.")
+    st.write("Thank you!")
 
-        st.write("FINAL LABELS VAL:")
-        st.write(val_labels_dict)
-
-    with train_labels.open("r", encoding="utf-8") as f:
-        for obj in ijson.items(f, "item"):
-            for label in obj["labels"]:
-                name = label["category"]
-                if name not in ["lane", "drivable area"]:
-                    if train_labels_dict.get(name) is None:
-                        st.write(name)
-                        train_labels_dict[name] = 1
-                    else:
-                        train_labels_dict[name] += 1
-
-        st.write("FINAL LABELS TRAIN:")
-        st.write(train_labels_dict)
 
 if __name__ == "__main__":
-    run_analysis()
+    main()
